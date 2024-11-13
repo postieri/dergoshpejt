@@ -75,14 +75,15 @@ RUN set -x \
   && chmod +x /usr/local/bin/cloudflared \
   && apk clean
 
-# Set up cloudflared tunnel configuration
-RUN mkdir -p /root/.cloudflared \
-  && echo "tunnel: dergo-tunnel" > /root/.cloudflared/config.yml \
-  && echo "credentials-file: /root/.cloudflared/dergo-tunnel.json" >> /root/.cloudflared/config.yml
+# Set up cloudflared tunnel with the provided token
+RUN set -x \
+  && cloudflared tunnel login --token eyJhIjoiZjVlMDBmZWE3MzdlMTAzMGEwOTMyNmNiZTQ0MGJkNzEiLCJ0IjoiNWQxMzg2MTgtNmExNy00ZTk1LTllZDctMmNmNmI0NDE4ZDc3IiwicyI6IlpEVmtORGM0T0dRdE16TXlZaTAwT1dVeExXRXpaamN0WWpnd1pqazVaRFUxWmpnMyJ9 \
+  && cloudflared tunnel create dergo-tunnel \
+  && cloudflared tunnel route dns dergo-tunnel dergo.postieri.digital
 
 # Set environment variables for cloudflared and the app
 ENV PORT=1443
 EXPOSE ${PORT}
 
 # Start cloudflared tunnel and your app
-CMD ["sh", "-c", "echo 'eyJhIjoiZjVlMDBmZWE3MzdlMTAzMGEwOTMyNmNiZTQ0MGJkNzEiLCJ0IjoiNWQxMzg2MTgtNmExNy00ZTk1LTllZDctMmNmNmI0NDE4ZDc3IiwicyI6IlpEVmtORGM0T0dRdE16TXlZaTAwT1dVeExXRXpaamN0WWpnd1pqazVaRFUxWmpnMyJ9' > /root/.cloudflared/dergo-tunnel.json && cloudflared tunnel run dergo-tunnel & node server/bin/prod.js"]
+CMD ["sh", "-c", "cloudflared tunnel run dergo-tunnel & node server/bin/prod.js"]
