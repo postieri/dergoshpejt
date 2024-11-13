@@ -70,10 +70,9 @@ RUN ln -s dist/version.json version.json
 USER root
 RUN set -x \
   && apk update \
-  && apk add --no-cache wget \
+  && apk add --no-cache wget bash \
   && wget -O /usr/local/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
   && chmod +x /usr/local/bin/cloudflared \
-  && apk add --no-cache bash \
   && apk clean
 
 # Set up cloudflared tunnel configuration
