@@ -55,7 +55,7 @@ RUN set -x \
 USER app
 WORKDIR /app
 
-COPY --chown=app:app package*.json ./
+COPY --chown=app:app package*.json ./ 
 COPY --chown=app:app app app
 COPY --chown=app:app common common
 COPY --chown=app:app public/locales public/locales
@@ -66,8 +66,24 @@ RUN npm ci --production && npm cache clean --force
 RUN mkdir -p /app/.config/configstore
 RUN ln -s dist/version.json version.json
 
-ENV PORT=1443
+# Install cloudflared
+USER root
+RUN set -x \
+  && apk update \
+  && apk add --no-cache wget \
+  && wget -O /usr/local/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
+  && chmod +x /usr/local/bin/cloudflared \
+  && apk add --no-cache bash \
+  && apk clean
 
+# Set up cloudflared tunnel configuration
+RUN mkdir -p /root/.cloudflared \
+  && echo "tunnel: dergo-tunnel" > /root/.cloudflared/config.yml \
+  && echo "credentials-file: /root/.cloudflared/dergo-tunnel.json" >> /root/.cloudflared/config.yml
+
+# Set environment variables for cloudflared and the app
+ENV PORT=1443
 EXPOSE ${PORT}
 
-CMD ["node", "server/bin/prod.js"]
+# Start cloudflared tunnel and your app
+CMD ["sh", "-c", "echo 'eyJhIjoiZjVlMDBmZWE3MzdlMTAzMGEwOTMyNmNiZTQ0MGJkNzEiLCJ0IjoiNWQxMzg2MTgtNmExNy00ZTk1LTllZDctMmNmNmI0NDE4ZDc3IiwicyI6IlpEVmtORGM0T0dRdE16TXlZaTAwT1dVeExXRXpaamN0WWpnd1pqazVaRFUxWmpnMyJ9' > /root/.cloudflared/dergo-tunnel.json && cloudflared tunnel run dergo-tunnel & node server/bin/prod.js"]
