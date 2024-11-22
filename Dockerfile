@@ -77,7 +77,7 @@ RUN set -x \
 
 # Set up cloudflared tunnel with the provided token
 RUN set -x \
-  && cloudflared tunnel login --token eyJhIjoiZjVlMDBmZWE3MzdlMTAzMGEwOTMyNmNiZTQ0MGJkNzEiLCJ0IjoiNWQxMzg2MTgtNmExNy00ZTk1LTllZDctMmNmNmI0NDE4ZDc3IiwicyI6IlpEVmtORGM0T0dRdE16TXlZaTAwT1dVeExXRXpaamN0WWpnd1pqazVaRFUxWmpnMyJ9 \
+  && cloudflared tunnel login --token eyJhIjoiZjVlMDBmZWE3MzdlMTAzMGEwOTMyNmNiZTQ0MGJkNzEiLCJ0IjoiNWQxMzg2MTgtNmExNy00ZTk1LTllZDctMmNmNmI0NDE4ZDc3IiwicyI6IlpHUXpObVV5WmpFdFltUTRaUzAwTVdSaUxXSXdPV1F0TXpGaE1URTBPR0poT0daaiJ9 \
   && cloudflared tunnel create dergo-tunnel \
   && cloudflared tunnel route dns dergo-tunnel dergo.postieri.digital
 
